@@ -75,7 +75,7 @@ Enrichissement des critères recettes et UX.
 
 ---
 # Next
-Maintenant que j'ai la stack +/- en tête je demande a l'IA de me genere un prompt opti pour l'utilisation de token 
+Maintenant que j'ai la stack +/- en tête, je demande a gemini classique de me faire un prompt opti pour l'utilisation de token 
 ---
 # Prompt pour CLI v0.1: 
 
