@@ -102,5 +102,3 @@ Generate:
 3. `src/ui/components.py` (NiceGUI forms and displays)
 4. `main.py` (FastAPI + NiceGUI launcher)
 5. Execution command to run the app.
-
-
