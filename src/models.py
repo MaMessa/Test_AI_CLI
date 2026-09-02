@@ -19,6 +19,7 @@ class Recipe(Base):
         "Ingredient", back_populates="recipe", cascade="all, delete-orphan", lazy="selectin"
     )
 
+
 class Ingredient(Base):
     """Ingredient model linked to a specific recipe."""
     __tablename__ = "ingredients"
