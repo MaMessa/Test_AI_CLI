@@ -1,0 +1,31 @@
+version: '3.8'
+
+services:
+  # Database service (PostgreSQL)
+  db:
+    image: postgres:15-alpine
+    container_name: recipe_postgres_db
+    restart: always
+    environment:
+      POSTGRES_USER: recipe_user
+      POSTGRES_PASSWORD: recipe_password
+      POSTGRES_DB: recipedb
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  # FastAPI + NiceGUI application container
+  web:
+    build: .
+    container_name: recipe_nicegui_app
+    restart: always
+    ports:
+      - "8080:8080"
+    environment:
+      - DATABASE_URL=postgresql://recipe_user:recipe_password@db:5432/recipedb
+    depends_on:
+      - db
+
+volumes:
+  postgres_data:

@@ -1,4 +1,3 @@
-from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from nicegui import ui
 from src.services import initialize_database
@@ -6,16 +5,13 @@ from src.ui.pages_recipes import render_recipes_page
 from src.ui.pages_grocery import render_grocery_page
 from src.ui.pages_ingredients import render_ingredients_page
 
-@asynccontextmanager
-async def lifespan(app: FastAPI):
-    # Initialize DB tables and seed data on startup
-    initialize_database()
-    yield
+# Initialiser la base de données et les données exemple immédiatement
+initialize_database()
 
-# Create FastAPI app
-app = FastAPI(title="Recipe to Grocery App", lifespan=lifespan)
+# Créer l'application FastAPI
+app = FastAPI(title="Application Recettes & Liste de Courses")
 
-# --- Page Routes ---
+# --- Routes des Pages ---
 
 @ui.page('/')
 @ui.page('/recipes')
@@ -30,8 +26,9 @@ def grocery_page():
 def ingredients_page():
     render_ingredients_page()
 
-# Mount NiceGUI on FastAPI
+# Monter NiceGUI sur FastAPI
 ui.run_with(app, mount_path='/')
 
 if __name__ in {"__main__", "__mp_main__"}:
-    ui.run(port=8080, title="Recipe to Grocery App")
+    # Écoute sur 0.0.0.0 pour autoriser le réseau local (téléphone) et les conteneurs Docker
+    ui.run(host='0.0.0.0', port=8080, title="Application Recettes & Liste de Courses")
