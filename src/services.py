@@ -1,63 +1,67 @@
 from typing import List, Dict, Tuple
 from sqlalchemy.orm import Session
 from src.database import get_db_session, init_db
-from src.models import Recipe, Ingredient, RecipeCreate, IngredientCreate, AggregatedIngredient
+from src.seed import seed_database_if_empty
+from src.models import (
+    Recipe, Ingredient, MasterIngredient, 
+    RecipeCreate, IngredientCreate, AggregatedIngredient
+)
 
 def initialize_database():
-    """Ensure database schema is created on application startup."""
+    """Ensure database schema exists and populate initial seed data if empty."""
     init_db()
+    seed_database_if_empty()
 
-def parse_ingredients_input(raw_text: str) -> List[IngredientCreate]:
-    """
-    Parse line-by-line ingredients string.
-    Expected line format: 'Name, AmountPerPerson, Unit'
-    Examples:
-      - 'Pasta, 100, g'
-      - 'Eggs, 2, pcs'
-      - 'Salt' (defaults to 1.0, '')
-    """
-    parsed: List[IngredientCreate] = []
-    for line in raw_text.splitlines():
-        line = line.strip()
-        if not line:
-            continue
-        parts = [p.strip() for p in line.split(',')]
-        name = parts[0]
-        amount = 1.0
-        unit = ""
-        
-        if len(parts) >= 2:
-            try:
-                amount = float(parts[1])
-            except ValueError:
-                amount = 1.0
-        if len(parts) >= 3:
-            unit = parts[2]
-            
-        parsed.append(IngredientCreate(name=name, amount_per_person=amount, unit=unit))
-    return parsed
+# --- Master Ingredients Services ---
 
+def get_all_master_ingredients() -> List[MasterIngredient]:
+    """Fetch all master ingredients sorted alphabetically."""
+    db: Session = get_db_session()
+    try:
+        return db.query(MasterIngredient).order_by(MasterIngredient.name).all()
+    finally:
+        db.close()
+
+
+def add_master_ingredient(name: str, default_unit: str = "g") -> MasterIngredient:
+    """Add a new ingredient to the master pool."""
+    db: Session = get_db_session()
+    try:
+        name_clean = name.strip()
+        existing = db.query(MasterIngredient).filter(MasterIngredient.name.ilike(name_clean)).first()
+        if existing:
+            return existing
+        master = MasterIngredient(name=name_clean, default_unit=default_unit.strip() or "g")
+        db.add(master)
+        db.commit()
+        db.refresh(master)
+        return master
+    finally:
+        db.close()
+
+
+# --- Recipe Services ---
 
 def create_recipe(recipe_data: RecipeCreate) -> Recipe:
-    """Create and persist a new recipe with its ingredients."""
+    """Create and persist a new recipe with base servings (default 4)."""
     db: Session = get_db_session()
     try:
         recipe = Recipe(
             name=recipe_data.name,
             prep_time=recipe_data.prep_time,
-            cook_time=recipe_data.cook_time
+            cook_time=recipe_data.cook_time,
+            base_servings=recipe_data.base_servings or 4
         )
         db.add(recipe)
-        db.flush()  # Obtain generated recipe ID
+        db.flush()
 
         for ing in recipe_data.ingredients:
-            ingredient = Ingredient(
+            db.add(Ingredient(
                 recipe_id=recipe.id,
                 name=ing.name,
-                amount_per_person=ing.amount_per_person,
+                amount=ing.amount,
                 unit=ing.unit
-            )
-            db.add(ingredient)
+            ))
 
         db.commit()
         db.refresh(recipe)
@@ -67,7 +71,7 @@ def create_recipe(recipe_data: RecipeCreate) -> Recipe:
 
 
 def get_all_recipes() -> List[Recipe]:
-    """Retrieve all stored recipes with ingredients."""
+    """Retrieve all recipes with associated ingredients."""
     db: Session = get_db_session()
     try:
         return db.query(Recipe).all()
@@ -89,10 +93,15 @@ def delete_recipe(recipe_id: int) -> bool:
         db.close()
 
 
-def generate_grocery_list(recipe_ids: List[int], people_count: int = 5) -> List[AggregatedIngredient]:
+# --- Grocery List Aggregation with Portion Scaling ---
+
+def generate_scaled_grocery_list(
+    recipe_ids: List[int], 
+    target_people: int = 5
+) -> List[AggregatedIngredient]:
     """
-    Aggregate ingredients across selected recipes for N people.
-    Combines amounts for ingredients matching (name, unit) case-insensitively.
+    Generate aggregated grocery list scaled for target_people.
+    Formula: (ingredient_amount / recipe_base_servings) * target_people
     """
     if not recipe_ids:
         return []
@@ -104,12 +113,14 @@ def generate_grocery_list(recipe_ids: List[int], people_count: int = 5) -> List[
         display_names: Dict[Tuple[str, str], Tuple[str, str]] = {}
 
         for recipe in recipes:
+            base_servings = recipe.base_servings if recipe.base_servings > 0 else 4
+            scale_factor = target_people / base_servings
+
             for ing in recipe.ingredients:
                 key = (ing.name.strip().lower(), ing.unit.strip().lower())
-                total_for_recipe = ing.amount_per_person * people_count
-                aggregated_map[key] = aggregated_map.get(key, 0.0) + total_for_recipe
+                scaled_amount = ing.amount * scale_factor
+                aggregated_map[key] = aggregated_map.get(key, 0.0) + scaled_amount
                 
-                # Keep first seen formatted display name & unit
                 if key not in display_names:
                     display_names[key] = (ing.name.strip(), ing.unit.strip())
 
