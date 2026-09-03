@@ -88,15 +88,15 @@ def render_recipes_page():
 
                 difficulty_select = ui.select(
                     options=['Toutes', 'Facile', 'Moyen', 'Difficile'], value='Toutes', label='Difficulté'
-                ).classes('w-32')
+                ).classes('w-28')
 
                 price_select = ui.select(
                     options=['Tous', 'Économique', 'Modéré', 'Élevé'], value='Tous', label='Budget'
-                ).classes('w-36')
+                ).classes('w-28')
 
                 season_select = ui.select(
                     options=['Toutes', 'Été', 'Hiver', 'Aucune'], value='Toutes', label='Saison'
-                ).classes('w-32')
+                ).classes('w-28')
 
                 oven_filter = ui.select(
                     options=['Tous', 'Four requis', 'Sans four'], value='Tous', label='Utilisation du four'
@@ -381,10 +381,10 @@ def render_recipes_page():
 
                             # Badges de métadonnées
                             with ui.row().classes('gap-1 wrap my-1'):
-                                ui.chip(f"⏱️ Prép : {recipe.prep_time}m | Total : {total_time}m", icon='timer').classes('text-xs bg-slate-100 font-medium')
-                                ui.chip(f"👥 {recipe.base_servings} pers. base", icon='groups').classes('text-xs bg-slate-100')
-                                ui.chip(recipe.difficulty, icon='equalizer').classes('text-xs bg-blue-50 text-blue-800')
-                                ui.chip(recipe.price, icon='attach_money').classes('text-xs bg-green-50 text-green-800')
+                                ui.chip(f"Prép : {recipe.prep_time}m | Total : {total_time}m", icon='timer').classes('text-xs bg-slate-100 font-medium')
+                                ui.chip(f" {recipe.base_servings} pers. base", icon='groups').classes('text-xs bg-indigo-100')
+                                ui.chip(recipe.difficulty, icon='equalizer').classes('text-xs bg-white-800 text-blue-100')
+                                ui.chip(recipe.price, icon='attach_money').classes('text-xs bg-pink-50 text-red-900')
                                 if recipe.uses_oven:
                                     ui.chip('Four requis', icon='microwave').classes('text-xs bg-amber-50 text-amber-800')
                                 else:

@@ -5,7 +5,7 @@ def header_nav(active_page: str = ""):
     with ui.header().classes('bg-blue-700 text-white p-4 flex justify-between items-center shadow-md w-full'):
         with ui.row().classes('items-center gap-2'):
             ui.label('🥗 Mes Recettes & Courses').classes('text-xl font-bold tracking-wide')
-            ui.label('v0.5').classes('text-xs bg-blue-800 px-2 py-0.5 rounded text-blue-100')
+            ui.label('v0.51').classes('text-xs bg-blue-800 px-2 py-0.5 rounded text-blue-100')
 
         with ui.row().classes('gap-4'):
             recipes_btn = ui.link('📖 Recettes', '/recipes').classes('text-white font-medium hover:underline')

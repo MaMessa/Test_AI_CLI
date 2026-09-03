@@ -102,3 +102,35 @@ Generate:
 3. `src/ui/components.py` (NiceGUI forms and displays)
 4. `main.py` (FastAPI + NiceGUI launcher)
 5. Execution command to run the app.
+
+
+--- 
+
+## De la V0.1 a la v0.4 ok 
+
+V0.5 ajout de plus déléments mais un peu flinguer
+
+---
+
+Fix: 
+- 
+
+Bug a fixé :
+- Page "Recettes"
+    - impossible d'ajouter un ingrédient qui n'est pas dans la liste "ingrédients principaux".
+    - Quand selection un ingrédient 1 dans la dropdown list puis je supprime (backspace) et j'écris un ingrédient 2 qui n'est pas dans la liste "ingrédients principaux", il ajoute quand meme l'element 1 selectionné avant et présent dans la liste "ingrédients principaux".
+    - Lors de l'ajout de la recette depuis marmiton. je veux une fenetre pop up pour que je puisse modifier le nom des ingrédients ( avec possibilité de selection dans les ingrédients principaux) ou même les remplacer
+
+Amélioration secondaire :
+- Page "Recettes"
+    - Couleur des ingrédients dans les recettes et des caractéristiques de la recette dans 2 couleurs différentes
+Add : 
+- Page "Recettes"
+    - Prix par personne pour la recette et prix total de la recette.
+    - 
+- Page "Ingrédients"
+    - Ajout des magasins ou l'on trouve l'ingrédient (ou une case everywhere pour les éléments basiques)
+    - 
+
+- Page "liste de courses"
+    - ajout d'un bouton pour ajouter de produit non consommable ou qui ne font pas partie de recette. ce serait bien d'avoir de onglets de classe (que je puisse definir et modifier et qui s'applique sur les ingédients et les produits)ex :(hygiene / boissons / ...) 
